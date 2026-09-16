@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { AudioEngine } from '../audio/AudioEngine';
 import { VisualizerConfig } from '../types/visualizer';
+import { AspectRatio, TimelineClip } from '../types/timeline';
 import { CanvasRadialVisualizer } from '../visualizers/CanvasRadialVisualizer';
 import { ThreeTunnelVisualizer } from '../visualizers/ThreeTunnelVisualizer';
 import { ThreeParticleVisualizer } from '../visualizers/ThreeParticleVisualizer';
@@ -10,16 +11,24 @@ import { ShaderGlslVisualizer } from '../visualizers/ShaderGlslVisualizer';
 interface VisualizerCanvasProps {
   audioEngine: AudioEngine;
   config: VisualizerConfig;
+  aspectRatio: AspectRatio;
+  activeClip?: TimelineClip | null;
   onCanvasReady?: (canvas: HTMLCanvasElement) => void;
 }
 
 export const VisualizerCanvas: React.FC<VisualizerCanvasProps> = ({
   audioEngine,
   config,
+  aspectRatio,
+  activeClip,
   onCanvasReady,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Use active timeline clip's mode and config if provided, otherwise fallback to global config
+  const activeConfig = activeClip?.config || config;
+  const activeMode = activeClip?.visualMode || config.mode;
 
   // Engine references
   const radial2DRef = useRef<CanvasRadialVisualizer | null>(null);
@@ -29,9 +38,8 @@ export const VisualizerCanvas: React.FC<VisualizerCanvasProps> = ({
   const glslShaderRef = useRef<ShaderGlslVisualizer | null>(null);
 
   const animFrameIdRef = useRef<number | null>(null);
-  const currentModeRef = useRef(config.mode);
+  const currentModeRef = useRef(activeMode);
 
-  // Notify parent of canvas ready for video recording
   useEffect(() => {
     if (canvasRef.current && onCanvasReady) {
       onCanvasReady(canvasRef.current);
@@ -43,64 +51,74 @@ export const VisualizerCanvas: React.FC<VisualizerCanvasProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Cleanup previous 3D/GL instances when switching modes
-    if (tunnel3DRef.current && config.mode !== 'cyber-tunnel') {
+    if (tunnel3DRef.current && activeMode !== 'cyber-tunnel') {
       tunnel3DRef.current.dispose();
       tunnel3DRef.current = null;
     }
-    if (particle3DRef.current && config.mode !== 'particle-nebula') {
+    if (particle3DRef.current && activeMode !== 'particle-nebula') {
       particle3DRef.current.dispose();
       particle3DRef.current = null;
     }
-    if (terrain3DRef.current && config.mode !== 'synthwave-terrain') {
+    if (terrain3DRef.current && activeMode !== 'synthwave-terrain') {
       terrain3DRef.current.dispose();
       terrain3DRef.current = null;
     }
-    if (glslShaderRef.current && config.mode !== 'glsl-warp') {
+    if (glslShaderRef.current && activeMode !== 'glsl-warp') {
       glslShaderRef.current.dispose();
       glslShaderRef.current = null;
     }
 
-    currentModeRef.current = config.mode;
+    currentModeRef.current = activeMode;
 
-    // Initialize the active mode engine
-    if (config.mode === 'radial-spectrum' && !radial2DRef.current) {
+    if (activeMode === 'radial-spectrum' && !radial2DRef.current) {
       radial2DRef.current = new CanvasRadialVisualizer();
-    } else if (config.mode === 'cyber-tunnel' && !tunnel3DRef.current) {
+    } else if (activeMode === 'cyber-tunnel' && !tunnel3DRef.current) {
       tunnel3DRef.current = new ThreeTunnelVisualizer(canvas);
-    } else if (config.mode === 'particle-nebula' && !particle3DRef.current) {
-      particle3DRef.current = new ThreeParticleVisualizer(canvas, config.particleCount || 3500);
-    } else if (config.mode === 'synthwave-terrain' && !terrain3DRef.current) {
+    } else if (activeMode === 'particle-nebula' && !particle3DRef.current) {
+      particle3DRef.current = new ThreeParticleVisualizer(canvas, activeConfig.particleCount || 3500);
+    } else if (activeMode === 'synthwave-terrain' && !terrain3DRef.current) {
       terrain3DRef.current = new ThreeTerrainVisualizer(canvas);
-    } else if (config.mode === 'glsl-warp' && !glslShaderRef.current) {
+    } else if (activeMode === 'glsl-warp' && !glslShaderRef.current) {
       glslShaderRef.current = new ShaderGlslVisualizer(canvas);
-      if (config.glslShaderCode) {
-        glslShaderRef.current.setCustomShader(config.glslShaderCode);
+      if (activeConfig.glslShaderCode) {
+        glslShaderRef.current.setCustomShader(activeConfig.glslShaderCode);
       }
     }
-  }, [config.mode, config.particleCount, config.glslShaderCode]);
+  }, [activeMode, activeConfig.particleCount, activeConfig.glslShaderCode]);
 
-  // Resize handling
+  // Handle Resize and Aspect Ratio Framing
   useEffect(() => {
     const handleResize = () => {
       const container = containerRef.current;
       const canvas = canvasRef.current;
       if (!container || !canvas) return;
 
-      const width = container.clientWidth;
-      const height = container.clientHeight;
+      const contWidth = container.clientWidth;
+      const contHeight = container.clientHeight;
 
-      // Update canvas resolution with DPR for 2D, or standard for 3D performance
+      // Aspect ratio calculation
+      let targetRatio = 16 / 9;
+      if (aspectRatio === '9:16') targetRatio = 9 / 16;
+      else if (aspectRatio === '1:1') targetRatio = 1;
+
+      let renderWidth = contWidth;
+      let renderHeight = contWidth / targetRatio;
+
+      if (renderHeight > contHeight) {
+        renderHeight = contHeight;
+        renderWidth = contHeight * targetRatio;
+      }
+
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.floor(width * (config.mode === 'radial-spectrum' ? dpr : 1));
-      canvas.height = Math.floor(height * (config.mode === 'radial-spectrum' ? dpr : 1));
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
+      canvas.width = Math.floor(renderWidth * (activeMode === 'radial-spectrum' ? dpr : 1));
+      canvas.height = Math.floor(renderHeight * (activeMode === 'radial-spectrum' ? dpr : 1));
+      canvas.style.width = `${Math.floor(renderWidth)}px`;
+      canvas.style.height = `${Math.floor(renderHeight)}px`;
 
-      if (tunnel3DRef.current) tunnel3DRef.current.resize(width, height);
-      if (particle3DRef.current) particle3DRef.current.resize(width, height);
-      if (terrain3DRef.current) terrain3DRef.current.resize(width, height);
-      if (glslShaderRef.current) glslShaderRef.current.resize(width, height);
+      if (tunnel3DRef.current) tunnel3DRef.current.resize(renderWidth, renderHeight);
+      if (particle3DRef.current) particle3DRef.current.resize(renderWidth, renderHeight);
+      if (terrain3DRef.current) terrain3DRef.current.resize(renderWidth, renderHeight);
+      if (glslShaderRef.current) glslShaderRef.current.resize(renderWidth, renderHeight);
     };
 
     handleResize();
@@ -112,7 +130,7 @@ export const VisualizerCanvas: React.FC<VisualizerCanvasProps> = ({
       ro.disconnect();
       window.removeEventListener('resize', handleResize);
     };
-  }, [config.mode]);
+  }, [activeMode, aspectRatio]);
 
   // Main Render Loop
   useEffect(() => {
@@ -127,23 +145,23 @@ export const VisualizerCanvas: React.FC<VisualizerCanvasProps> = ({
         const ctx = canvas.getContext('2d');
         if (ctx) {
           if (!radial2DRef.current) radial2DRef.current = new CanvasRadialVisualizer();
-          radial2DRef.current.render(ctx, canvas.width, canvas.height, metrics, config);
+          radial2DRef.current.render(ctx, canvas.width, canvas.height, metrics, activeConfig);
         }
       } else if (mode === 'cyber-tunnel') {
         if (tunnel3DRef.current) {
-          tunnel3DRef.current.render(metrics, config);
+          tunnel3DRef.current.render(metrics, activeConfig);
         }
       } else if (mode === 'particle-nebula') {
         if (particle3DRef.current) {
-          particle3DRef.current.render(metrics, config);
+          particle3DRef.current.render(metrics, activeConfig);
         }
       } else if (mode === 'synthwave-terrain') {
         if (terrain3DRef.current) {
-          terrain3DRef.current.render(metrics, config);
+          terrain3DRef.current.render(metrics, activeConfig);
         }
       } else if (mode === 'glsl-warp') {
         if (glslShaderRef.current) {
-          glslShaderRef.current.render(canvas.width, canvas.height, metrics, config);
+          glslShaderRef.current.render(canvas.width, canvas.height, metrics, activeConfig);
         }
       }
 
@@ -157,15 +175,14 @@ export const VisualizerCanvas: React.FC<VisualizerCanvasProps> = ({
         cancelAnimationFrame(animFrameIdRef.current);
       }
     };
-  }, [audioEngine, config]);
+  }, [audioEngine, activeConfig]);
 
   return (
     <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-black flex items-center justify-center">
-      {/* Keying canvas element by mode ensures proper WebGL vs 2D context binding */}
       <canvas
-        key={config.mode}
+        key={`${activeMode}-${aspectRatio}`}
         ref={canvasRef}
-        className="w-full h-full block"
+        className="block shadow-2xl border border-white/5"
       />
     </div>
   );
