@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "dj-mix-visualiser",
+  "name": "ix-visualiser",
   "main": "worker.ts",
   "compatibility_date": "2025-02-01",
   "compatibility_flags": [
