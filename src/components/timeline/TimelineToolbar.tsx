@@ -7,11 +7,9 @@ import {
   ZoomIn, 
   ZoomOut, 
   FileText, 
-  Smartphone, 
-  Monitor, 
-  Square, 
   ChevronDown, 
-  ChevronUp 
+  ChevronUp,
+  Maximize2
 } from 'lucide-react';
 import { AspectRatio } from '../../types/timeline';
 
@@ -21,7 +19,7 @@ interface TimelineToolbarProps {
   onDuplicateClip: () => void;
   isSnapping: boolean;
   onToggleSnapping: () => void;
-  zoom: number; // Pixels per second
+  zoom: number;
   onZoomChange: (val: number) => void;
   aspectRatio: AspectRatio;
   onChangeAspectRatio: (ratio: AspectRatio) => void;
@@ -47,122 +45,101 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
   hasSelectedClip,
 }) => {
   return (
-    <div className="flex items-center justify-between px-4 py-2 bg-black/95 border-b border-[#D8163F]/25 font-ocra text-xs text-neutral-300 select-none">
-      {/* Left: Edit Tools */}
-      <div className="flex items-center gap-2">
+    <div className="flex items-center justify-between px-3 py-1.5 bg-neutral-950 border-b border-white/10 font-ocra text-[11px] text-neutral-300 select-none">
+      {/* Left: Professional Edit & Selection Tools */}
+      <div className="flex items-center gap-1.5">
         {/* Split Razor Tool */}
         <button
           onClick={onSplitClip}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-neutral-900 hover:bg-neutral-800 text-white border border-white/10 hover:border-[#D8163F] transition-all cursor-pointer shadow-sm active:scale-95"
-          title="Split Clip at Playhead (Shortcut: S or Cmd+B)"
+          className="flex items-center gap-1 px-2 py-1 rounded bg-neutral-900 hover:bg-neutral-800 text-white border border-white/10 hover:border-[#D8163F] transition-colors cursor-pointer active:scale-95"
+          title="Razor Split at Playhead (Shortcut: S or Cmd+B)"
         >
-          <Scissors className="w-3.5 h-3.5 text-[#D8163F]" />
-          <span className="font-bold">SPLIT (S)</span>
+          <Scissors className="w-3 h-3 text-[#D8163F]" />
+          <span className="font-semibold">Split</span>
+          <span className="text-[9px] text-neutral-500 ml-0.5">S</span>
         </button>
 
         {/* Duplicate Clip */}
         <button
           onClick={onDuplicateClip}
           disabled={!hasSelectedClip}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded border transition-all ${
+          className={`flex items-center gap-1 px-2 py-1 rounded border transition-colors ${
             hasSelectedClip
               ? 'bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border-white/10 cursor-pointer'
-              : 'bg-neutral-950 text-neutral-600 border-white/5 cursor-not-allowed'
+              : 'bg-neutral-950 text-neutral-600 border-transparent cursor-not-allowed'
           }`}
-          title="Duplicate Selected Clip"
+          title="Duplicate selected clip"
         >
-          <Copy className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">DUPLICATE</span>
+          <Copy className="w-3 h-3" />
+          <span>Duplicate</span>
         </button>
 
         {/* Delete Clip */}
         <button
           onClick={onDeleteClip}
           disabled={!hasSelectedClip}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded border transition-all ${
+          className={`flex items-center gap-1 px-2 py-1 rounded border transition-colors ${
             hasSelectedClip
               ? 'bg-neutral-900 hover:bg-red-950/40 text-red-400 border-red-500/30 cursor-pointer'
-              : 'bg-neutral-950 text-neutral-600 border-white/5 cursor-not-allowed'
+              : 'bg-neutral-950 text-neutral-600 border-transparent cursor-not-allowed'
           }`}
-          title="Delete Selected Clip (Backspace / Delete)"
+          title="Delete selected clip (Backspace / Delete)"
         >
-          <Trash2 className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">DELETE</span>
+          <Trash2 className="w-3 h-3" />
+          <span>Delete</span>
         </button>
 
-        {/* Snap to Beat Drops */}
+        <div className="h-3.5 w-px bg-white/10 mx-1" />
+
+        {/* Snap to Drops Toggle */}
         <button
           onClick={onToggleSnapping}
-          className={`flex items-center gap-1 px-2.5 py-1.5 rounded border transition-all cursor-pointer ${
+          className={`flex items-center gap-1 px-2 py-1 rounded border transition-colors cursor-pointer ${
             isSnapping
-              ? 'bg-[#D8163F]/20 text-[#D8163F] border-[#D8163F] shadow-sm shadow-[#D8163F]/40'
+              ? 'bg-[#D8163F]/20 text-[#D8163F] border-[#D8163F]/50 shadow-sm'
               : 'bg-neutral-900 text-neutral-400 border-white/10 hover:text-white'
           }`}
-          title="Snap Cuts to Detected Beat Drops & Downbeats"
+          title="Toggle snap cuts to audio drop markers"
         >
-          <Magnet className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">SNAP DROPS</span>
+          <Magnet className="w-3 h-3" />
+          <span>Snap Drops</span>
         </button>
 
-        {/* Auto Tracklist Import */}
+        {/* Tracklist Import Menu Button */}
         <button
           onClick={onOpenTracklistModal}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-neutral-900 hover:bg-neutral-800 text-[#E5A93C] border border-[#E5A93C]/30 hover:border-[#E5A93C] transition-all cursor-pointer"
-          title="Paste Tracklist / CUE File to Auto-Slice Timeline"
+          className="flex items-center gap-1 px-2 py-1 rounded bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-white/10 hover:border-[#E5A93C]/50 transition-colors cursor-pointer"
+          title="Import Tracklist or Serato/Rekordbox .CUE file"
         >
-          <FileText className="w-3.5 h-3.5" />
-          <span className="font-bold">AUTO-SPLIT TRACKLIST</span>
+          <FileText className="w-3 h-3 text-[#E5A93C]" />
+          <span>Tracklist Import...</span>
         </button>
       </div>
 
-      {/* Right: Aspect Ratio, Zoom & Collapse */}
+      {/* Right: Aspect Ratio Dropdown, Zoom & Collapse */}
       <div className="flex items-center gap-3">
-        {/* Aspect Ratio Selector */}
-        <div className="flex items-center gap-1 bg-neutral-950 p-0.5 rounded border border-white/10">
-          <button
-            onClick={() => onChangeAspectRatio('16:9')}
-            className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold transition-all cursor-pointer ${
-              aspectRatio === '16:9'
-                ? 'bg-[#D8163F] text-white shadow-sm'
-                : 'text-neutral-400 hover:text-white'
-            }`}
-            title="16:9 Widescreen (YouTube, Twitch, Club Screens)"
+        {/* Precision Aspect Ratio Dropdown Menu */}
+        <div className="flex items-center gap-1.5 bg-neutral-900 px-2 py-0.5 rounded border border-white/10">
+          <span className="text-[10px] text-neutral-400 font-semibold uppercase">Aspect:</span>
+          <select
+            value={aspectRatio}
+            onChange={(e) => onChangeAspectRatio(e.target.value as AspectRatio)}
+            className="bg-transparent text-white text-[11px] font-bold focus:outline-none cursor-pointer pr-1"
           >
-            <Monitor className="w-3 h-3" />
-            <span>16:9</span>
-          </button>
-
-          <button
-            onClick={() => onChangeAspectRatio('9:16')}
-            className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold transition-all cursor-pointer ${
-              aspectRatio === '9:16'
-                ? 'bg-[#D8163F] text-white shadow-sm'
-                : 'text-neutral-400 hover:text-white'
-            }`}
-            title="9:16 Vertical (Instagram Reels, TikTok, YouTube Shorts)"
-          >
-            <Smartphone className="w-3 h-3" />
-            <span>9:16</span>
-          </button>
-
-          <button
-            onClick={() => onChangeAspectRatio('1:1')}
-            className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold transition-all cursor-pointer ${
-              aspectRatio === '1:1'
-                ? 'bg-[#D8163F] text-white shadow-sm'
-                : 'text-neutral-400 hover:text-white'
-            }`}
-            title="1:1 Square (Feed & Artwork)"
-          >
-            <Square className="w-3 h-3" />
-            <span>1:1</span>
-          </button>
+            <option value="16:9" className="bg-neutral-900 text-white">16:9 Widescreen (1920×1080)</option>
+            <option value="9:16" className="bg-neutral-900 text-white">9:16 Vertical (1080×1920)</option>
+            <option value="1:1" className="bg-neutral-900 text-white">1:1 Square (1080×1080)</option>
+          </select>
         </div>
 
-        {/* Zoom Slider */}
-        <div className="hidden lg:flex items-center gap-2">
-          <button onClick={() => onZoomChange(Math.max(2, zoom * 0.7))} className="text-neutral-400 hover:text-white p-1">
-            <ZoomOut className="w-3.5 h-3.5" />
+        {/* Zoom Stepper / Slider */}
+        <div className="flex items-center gap-1 text-neutral-400">
+          <button
+            onClick={() => onZoomChange(Math.max(2, zoom * 0.75))}
+            className="p-1 hover:text-white rounded hover:bg-neutral-800 transition-colors cursor-pointer"
+            title="Zoom Out"
+          >
+            <ZoomOut className="w-3 h-3" />
           </button>
           <input
             type="range"
@@ -171,21 +148,25 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
             step={2}
             value={zoom}
             onChange={(e) => onZoomChange(parseFloat(e.target.value))}
-            className="w-20 h-1 bg-neutral-800 appearance-none cursor-pointer accent-[#D8163F]"
-            title="Timeline Zoom Level"
+            className="w-16 h-1 bg-neutral-800 appearance-none cursor-pointer accent-[#D8163F]"
+            title="Timeline Zoom"
           />
-          <button onClick={() => onZoomChange(Math.min(80, zoom * 1.3))} className="text-neutral-400 hover:text-white p-1">
-            <ZoomIn className="w-3.5 h-3.5" />
+          <button
+            onClick={() => onZoomChange(Math.min(80, zoom * 1.3))}
+            className="p-1 hover:text-white rounded hover:bg-neutral-800 transition-colors cursor-pointer"
+            title="Zoom In"
+          >
+            <ZoomIn className="w-3 h-3" />
           </button>
         </div>
 
         {/* Collapse / Expand Toggle */}
         <button
           onClick={onToggleCollapse}
-          className="p-1.5 rounded bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-white/10 cursor-pointer"
-          title={isCollapsed ? 'Expand Timeline Editor' : 'Collapse Timeline'}
+          className="p-1 text-neutral-400 hover:text-white rounded hover:bg-neutral-800 transition-colors cursor-pointer"
+          title={isCollapsed ? 'Expand Timeline' : 'Collapse Timeline'}
         >
-          {isCollapsed ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          {isCollapsed ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
       </div>
     </div>

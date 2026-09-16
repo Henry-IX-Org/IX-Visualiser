@@ -2,15 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Play, 
   Pause, 
-  Upload, 
-  Mic, 
-  Radio, 
-  Maximize, 
-  Minimize, 
+  Volume2, 
+  VolumeX, 
   Sliders, 
   Video, 
-  Volume2, 
-  VolumeX
+  Maximize, 
+  Minimize,
+  ChevronDown
 } from 'lucide-react';
 import { AudioEngine } from '../audio/AudioEngine';
 import { AudioSourceType } from '../types/visualizer';
@@ -49,7 +47,7 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
       setCurrentTime(audioEngine.getCurrentTime());
       setDuration(audioEngine.getDuration());
       setSourceType(audioEngine.getCurrentSource());
-    }, 200);
+    }, 150);
     return () => clearInterval(timer);
   }, [audioEngine]);
 
@@ -70,17 +68,16 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
       const name = await audioEngine.loadFile(file);
       setTrackName(name.replace(/\.[^/.]+$/, ''));
       setIsPlaying(true);
+      setSourceType('file');
     } catch (err) {
       console.error('Failed to load audio file:', err);
     }
   };
 
-  const handleMicToggle = async () => {
-    if (sourceType === 'mic') {
-      audioEngine.disconnectMic();
-      setSourceType('file');
-      setIsPlaying(false);
-    } else {
+  const handleSourceSelect = async (type: string) => {
+    if (type === 'upload') {
+      fileInputRef.current?.click();
+    } else if (type === 'mic') {
       try {
         await audioEngine.enableMicrophone();
         setSourceType('mic');
@@ -89,14 +86,7 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
       } catch (err) {
         alert('Could not access microphone/line-in input: ' + (err as Error).message);
       }
-    }
-  };
-
-  const handleDemoSynthToggle = async () => {
-    if (sourceType === 'synth' && isPlaying) {
-      audioEngine.stopSynth();
-      setIsPlaying(false);
-    } else {
+    } else if (type === 'synth') {
       await audioEngine.startDemoSynth();
       setSourceType('synth');
       setIsPlaying(true);
@@ -127,79 +117,94 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
     }
   };
 
-  const formatTime = (seconds: number) => {
-    if (!Number.isFinite(seconds) || seconds <= 0) return '00:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    const hours = Math.floor(mins / 60);
-    if (hours > 0) {
-      return `${hours}:${(mins % 60).toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  const formatTimecode = (seconds: number) => {
+    if (!Number.isFinite(seconds) || seconds <= 0) return '00:00:00';
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   return (
-    <header className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-5 py-3.5 bg-black/90 backdrop-blur-2xl border-b border-[#D8163F]/25 text-white shadow-2xl transition-opacity duration-300">
-      {/* Brand: Official Henry IX Logo & Track Info */}
-      <div className="flex items-center gap-3.5 min-w-0">
-        <div className="flex items-center gap-2.5">
-          <img src="/logo-ix.svg" alt="IX" className="w-6 h-6 object-contain drop-shadow-[0_0_8px_#D8163F]" />
-          <span className="font-avathe text-xl tracking-widest text-white uppercase hidden sm:inline redline-glow">
+    <header className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 py-2 bg-black/95 backdrop-blur-2xl border-b border-white/10 text-white shadow-xl font-ocra text-xs select-none">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="audio/*"
+        className="hidden"
+        onChange={handleFileUpload}
+      />
+
+      {/* Left: Brand & Audio Input Source Dropdown */}
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2">
+          <img src="/logo-ix.svg" alt="IX" className="w-5 h-5 object-contain drop-shadow-[0_0_8px_#D8163F]" />
+          <span className="font-avathe text-base tracking-widest text-white uppercase hidden sm:inline redline-glow">
             HENRY IX
           </span>
+          <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-neutral-400 font-mono">STUDIO</span>
         </div>
 
-        <div className="h-4 w-px bg-white/20 hidden md:block" />
+        <div className="h-4 w-px bg-white/10 hidden md:block" />
 
-        <div className="truncate max-w-[140px] sm:max-w-xs font-ocra text-xs tracking-wider text-neutral-300 uppercase">
-          {trackName || 'NO TRACK LOADED'}
+        {/* Audio Input Source Dropdown */}
+        <div className="flex items-center gap-1.5 bg-neutral-900 px-2.5 py-1 rounded border border-white/10">
+          <span className="text-[10px] text-neutral-400 font-semibold uppercase">Source:</span>
+          <select
+            value={sourceType === 'file' ? 'upload' : sourceType}
+            onChange={(e) => handleSourceSelect(e.target.value)}
+            className="bg-transparent text-white text-[11px] font-bold focus:outline-none cursor-pointer pr-1"
+          >
+            <option value="upload" className="bg-neutral-900 text-white">Audio File (Open Mix...)</option>
+            <option value="mic" className="bg-neutral-900 text-white">Live Line-In / Mixer Mic</option>
+            <option value="synth" className="bg-neutral-900 text-white">Built-in Techno Synth</option>
+          </select>
+        </div>
+
+        <div className="truncate max-w-[140px] md:max-w-xs text-[11px] text-neutral-400 truncate hidden lg:block">
+          {trackName}
         </div>
       </div>
 
-      {/* Audio Playback & Transport Controls (Pioneer CDJ Style) */}
-      <div className="flex items-center gap-3.5 max-w-md w-full justify-center">
+      {/* Center: DAW Precision Transport Control */}
+      <div className="flex items-center gap-3">
         {/* Play/Pause Button */}
         <button
           onClick={handlePlayPause}
-          className={`p-2.5 rounded-full transition-all cursor-pointer ${
+          className={`p-2 rounded transition-all cursor-pointer ${
             isPlaying
-              ? 'bg-[#D8163F] text-white shadow-lg shadow-[#D8163F]/50 ring-2 ring-[#D8163F]/80'
+              ? 'bg-[#D8163F] text-white shadow-md shadow-[#D8163F]/40'
               : 'bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-white/10'
           }`}
-          title={isPlaying ? 'Pause' : 'Play'}
+          title={isPlaying ? 'Pause (Space)' : 'Play (Space)'}
         >
-          {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
+          {isPlaying ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current ml-0.5" />}
         </button>
 
-        {/* Timeline Slider */}
-        {sourceType === 'file' ? (
-          <div className="flex items-center gap-2.5 flex-1 max-w-[240px]">
-            <span className="font-ocra text-[10px] text-neutral-400 w-11 text-right">
-              {formatTime(currentTime)}
-            </span>
-            <input
-              type="range"
-              min={0}
-              max={duration || 100}
-              value={currentTime}
-              onChange={handleSeek}
-              className="w-full h-1.5 bg-neutral-800 rounded-none appearance-none cursor-pointer accent-[#D8163F]"
-            />
-            <span className="font-ocra text-[10px] text-neutral-400 w-11">
-              {formatTime(duration)}
-            </span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 px-3 py-1 bg-[#D8163F]/15 border border-[#D8163F]/40 rounded-full font-ocra text-[11px] text-[#D8163F] tracking-wider animate-pulse">
-            <span className="w-2 h-2 rounded-full bg-[#D8163F] animate-ping" />
-            {sourceType === 'mic' ? 'LIVE INPUT MONITOR' : 'TECHNO TEST SYNTH'}
-          </div>
+        {/* Precision Timecode Display */}
+        <div className="flex items-center gap-2 bg-neutral-950 px-2.5 py-1 rounded border border-white/10 font-mono text-[11px]">
+          <span className="text-white font-bold">{formatTimecode(currentTime)}</span>
+          <span className="text-neutral-600">/</span>
+          <span className="text-neutral-400">{formatTimecode(duration)}</span>
+        </div>
+
+        {/* Compact Timeline Scrub */}
+        {sourceType === 'file' && (
+          <input
+            type="range"
+            min={0}
+            max={duration || 100}
+            value={currentTime}
+            onChange={handleSeek}
+            className="w-24 md:w-36 h-1 bg-neutral-800 appearance-none cursor-pointer accent-[#D8163F] hidden sm:block"
+          />
         )}
 
-        {/* Volume slider */}
-        <div className="hidden md:flex items-center gap-1.5">
-          <button onClick={toggleMute} className="text-neutral-400 hover:text-white p-1">
-            {isMuted || volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+        {/* Volume Stepper */}
+        <div className="hidden md:flex items-center gap-1 text-neutral-400">
+          <button onClick={toggleMute} className="p-1 hover:text-white">
+            {isMuted || volume === 0 ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
           </button>
           <input
             type="range"
@@ -208,84 +213,40 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
             step={0.01}
             value={isMuted ? 0 : volume}
             onChange={handleVolumeChange}
-            className="w-16 h-1.5 bg-neutral-800 rounded-none appearance-none cursor-pointer accent-[#D8163F]"
+            className="w-14 h-1 bg-neutral-800 appearance-none cursor-pointer accent-[#D8163F]"
           />
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* Right: Studio Actions & Workspace Windows */}
       <div className="flex items-center gap-2">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="audio/*"
-          className="hidden"
-          onChange={handleFileUpload}
-        />
-
-        {/* Upload Audio File */}
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-900/90 hover:bg-neutral-800 text-xs font-semibold rounded border border-white/10 hover:border-[#D8163F]/40 transition-colors cursor-pointer"
-          title="Upload DJ Mix (MP3, WAV, FLAC, AAC)"
-        >
-          <Upload className="w-3.5 h-3.5 text-[#D8163F]" />
-          <span className="hidden sm:inline font-ocra text-[11px]">UPLOAD</span>
-        </button>
-
-        {/* Live Mic / Line-in */}
-        <button
-          onClick={handleMicToggle}
-          className={`flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded border transition-all cursor-pointer ${
-            sourceType === 'mic'
-              ? 'bg-[#D8163F]/20 text-[#D8163F] border-[#D8163F] shadow-sm shadow-[#D8163F]/40'
-              : 'bg-neutral-900/90 hover:bg-neutral-800 text-neutral-300 border-white/10'
-          }`}
-          title="Live DJ Mixer Line-in or Mic"
-        >
-          <Mic className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline font-ocra text-[11px]">LINE-IN</span>
-        </button>
-
-        {/* Demo Synth Button */}
-        <button
-          onClick={handleDemoSynthToggle}
-          className={`flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded border transition-all cursor-pointer ${
-            sourceType === 'synth' && isPlaying
-              ? 'bg-[#D8163F]/20 text-[#D8163F] border-[#D8163F]'
-              : 'bg-neutral-900/90 hover:bg-neutral-800 text-neutral-300 border-white/10'
-          }`}
-          title="Play 128 BPM Techno Test Track"
-        >
-          <Radio className="w-3.5 h-3.5 text-[#E5A93C]" />
-          <span className="hidden sm:inline font-ocra text-[11px]">TEST SYNTH</span>
-        </button>
-
-        {/* Video Recorder */}
+        {/* Export Video */}
         <button
           onClick={onOpenRecordModal}
-          className="p-2 bg-neutral-900/90 hover:bg-neutral-800 text-[#D8163F] rounded border border-white/10 hover:border-[#D8163F]/40 transition-colors cursor-pointer"
-          title="Record 60 FPS Visualizer Video"
+          className="flex items-center gap-1 px-2.5 py-1 rounded bg-neutral-900 hover:bg-neutral-800 text-[#D8163F] border border-[#D8163F]/40 transition-colors cursor-pointer"
+          title="Export Video (MP4 / WebCodecs)"
         >
-          <Video className="w-4 h-4" />
+          <Video className="w-3.5 h-3.5" />
+          <span className="font-bold hidden sm:inline">Export...</span>
         </button>
 
-        {/* Visualiser Studio Controls Drawer Toggle */}
+        {/* Inspector / Studio Drawer */}
         <button
           onClick={onToggleDrawer}
-          className="p-2 bg-[#D8163F] hover:bg-[#b01032] text-white rounded shadow-md shadow-[#D8163F]/40 transition-colors cursor-pointer"
-          title="Open Visualiser Studio"
+          className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#D8163F] hover:bg-[#b01032] text-white transition-colors cursor-pointer shadow-sm"
+          title="Open Inspector Drawer (S)"
         >
-          <Sliders className="w-4 h-4" />
+          <Sliders className="w-3.5 h-3.5" />
+          <span className="font-bold hidden sm:inline">Inspector</span>
         </button>
 
-        {/* Fullscreen Toggle */}
+        {/* Fullscreen VJ Mode */}
         <button
           onClick={onToggleFullscreen}
-          className="p-2 bg-neutral-900/90 hover:bg-neutral-800 text-neutral-300 rounded border border-white/10 transition-colors cursor-pointer"
-          title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Performance Mode'}
+          className="p-1.5 rounded bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white border border-white/10 transition-colors cursor-pointer"
+          title={isFullscreen ? 'Exit Fullscreen (F)' : 'Fullscreen VJ Mode (F)'}
         >
-          {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+          {isFullscreen ? <Minimize className="w-3.5 h-3.5" /> : <Maximize className="w-3.5 h-3.5" />}
         </button>
       </div>
     </header>
