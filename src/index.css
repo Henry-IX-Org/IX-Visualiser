@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Avathe';
+  src: url('/fonts/avathe.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OCRA';
+  src: url('/fonts/ocra.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  font-family: 'OCRA', -apple-system, BlinkMacSystemFont, monospace;
+  color-scheme: dark;
+  --henry-red: #D8163F;
+  --henry-red-glow: rgba(216, 22, 63, 0.45);
+  --henry-gold: #E5A93C;
+  --henry-dark: #050508;
+}
+
+.font-avathe {
+  font-family: 'Avathe', sans-serif;
+  letter-spacing: 0.08em;
+}
+
+.font-ocra {
+  font-family: 'OCRA', monospace;
+}
+
+/* Bayer Dither Texture Overlay */
+.bayer-dither {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 0);
+  background-size: 3px 3px;
+}
+
+/* Custom scrollbar for dark Henry IX interface */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050508;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(216, 22, 63, 0.35);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(216, 22, 63, 0.7);
+}
+
+/* Henry IX Industrial Glassmorphic Panels */
+.henry-panel {
+  background: rgba(6, 6, 10, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.7);
+}
+
+.henry-panel-red {
+  background: rgba(10, 5, 8, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(216, 22, 63, 0.35);
+  box-shadow: 0 0 25px -5px rgba(216, 22, 63, 0.3), 0 12px 40px 0 rgba(0, 0, 0, 0.8);
+}
+
+/* CDJ Redline LED Glow */
+.redline-glow {
+  text-shadow: 0 0 12px rgba(216, 22, 63, 0.7), 0 0 24px rgba(216, 22, 63, 0.4);
+}
+
+.gold-glow {
+  text-shadow: 0 0 12px rgba(229, 169, 60, 0.7), 0 0 24px rgba(229, 169, 60, 0.4);
+}
+
+/* Scanline and CRT accents */
+.henry-scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.25) 2px,
+    rgba(0, 0, 0, 0.25) 4px
+  );
+  pointer-events: none;
+}
