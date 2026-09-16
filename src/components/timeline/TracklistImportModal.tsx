@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, FileText, Upload, Sparkles, Check } from 'lucide-react';
 import { AudioScanner } from '../../audio/AudioScanner';
 import { TracklistEntry } from '../../types/timeline';
+import { Tooltip } from '../common/Tooltip';
 
 interface TracklistImportModalProps {
   isOpen: boolean;
@@ -71,35 +72,37 @@ export const TracklistImportModal: React.FC<TracklistImportModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-150">
       <div className="relative w-full max-w-2xl bg-black border border-[#D8163F]/40 rounded-xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        <Tooltip text="Close" position="left">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-1.5 rounded text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </Tooltip>
 
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2.5 rounded bg-[#D8163F]/20 text-[#D8163F] border border-[#D8163F]/40">
-            <FileText className="w-6 h-6" />
+          <div className="p-2 rounded bg-[#D8163F]/20 text-[#D8163F] border border-[#D8163F]/40">
+            <FileText className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-avathe text-xl tracking-wider text-white uppercase redline-glow">
-              AUTO-SLICE TIMELINE FROM TRACKLIST
+            <h3 className="font-avathe text-lg tracking-wider text-white uppercase redline-glow">
+              TRACKLIST IMPORT
             </h3>
-            <p className="font-ocra text-xs text-neutral-400 mt-0.5">
-              Paste timestamps or upload a Rekordbox/Serato .cue file to auto-cut scenes
+            <p className="font-ocra text-[11px] text-neutral-400">
+              Auto-slice scenes from timestamps or CUE
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0 mb-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0 mb-4">
           {/* Input text */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <span className="font-ocra text-xs font-bold text-neutral-300 uppercase">Tracklist Text / CUE</span>
-              <label className="flex items-center gap-1 font-ocra text-[11px] text-[#D8163F] hover:underline cursor-pointer">
+              <span className="font-ocra text-xs font-bold text-neutral-300 uppercase">Tracklist</span>
+              <label className="flex items-center gap-1 font-ocra text-[10px] text-[#D8163F] hover:underline cursor-pointer">
                 <Upload className="w-3 h-3" />
-                Upload .cue / .txt
+                Upload CUE
                 <input type="file" accept=".cue,.txt" className="hidden" onChange={handleFileUpload} />
               </label>
             </div>
@@ -115,15 +118,15 @@ export const TracklistImportModal: React.FC<TracklistImportModalProps> = ({
           {/* Parsed Preview */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between font-ocra text-xs">
-              <span className="font-bold text-neutral-300 uppercase">Detected Scenes</span>
-              <span className="px-2 py-0.5 rounded bg-[#D8163F]/20 text-[#D8163F] font-bold">
-                {parsedTracks.length} TRACKS
+              <span className="font-bold text-neutral-300 uppercase">Scenes</span>
+              <span className="px-1.5 py-0.5 rounded bg-[#D8163F]/20 text-[#D8163F] font-bold text-[10px]">
+                {parsedTracks.length}
               </span>
             </div>
             <div className="flex-1 overflow-y-auto p-3 bg-neutral-950/80 border border-white/10 rounded space-y-2">
               {parsedTracks.length === 0 ? (
                 <div className="text-center text-neutral-500 font-ocra text-xs py-8">
-                  No timestamped tracks recognized. Format: "00:00 Artist - Title"
+                  No timestamped tracks recognized.
                 </div>
               ) : (
                 parsedTracks.map((tr, idx) => (
@@ -141,21 +144,23 @@ export const TracklistImportModal: React.FC<TracklistImportModalProps> = ({
         </div>
 
         {/* Action Button */}
-        <div className="flex justify-end gap-3 font-ocra">
+        <div className="flex justify-end gap-2 font-ocra">
           <button
             onClick={onClose}
-            className="px-4 py-2.5 rounded bg-neutral-900 hover:bg-neutral-800 text-neutral-300 text-xs font-semibold cursor-pointer"
+            className="px-3.5 py-1.5 rounded bg-neutral-900 hover:bg-neutral-800 text-neutral-300 text-xs font-semibold cursor-pointer"
           >
-            CANCEL
+            Cancel
           </button>
-          <button
-            onClick={handleApply}
-            disabled={parsedTracks.length === 0}
-            className="flex items-center gap-2 px-5 py-2.5 rounded bg-[#D8163F] hover:bg-[#b01032] text-white text-xs font-bold uppercase tracking-wider cursor-pointer shadow-lg shadow-[#D8163F]/30 disabled:opacity-50"
-          >
-            <Sparkles className="w-4 h-4" />
-            AUTO-SLICE TIMELINE ({parsedTracks.length} SCENES)
-          </button>
+          <Tooltip text="Slice timeline into scenes" position="top">
+            <button
+              onClick={handleApply}
+              disabled={parsedTracks.length === 0}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded bg-[#D8163F] hover:bg-[#b01032] text-white text-xs font-bold uppercase tracking-wider cursor-pointer shadow-lg shadow-[#D8163F]/30 disabled:opacity-50"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Import ({parsedTracks.length})
+            </button>
+          </Tooltip>
         </div>
       </div>
     </div>

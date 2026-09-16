@@ -94,13 +94,12 @@ export const DJBrandingOverlay: React.FC<DJBrandingOverlayProps> = ({
         )}
       </div>
 
-      {/* Pioneer CDJ Hardware Peak LED Meters */}
-      <div className="flex items-center gap-2.5 mt-1 bg-black/85 backdrop-blur-xl px-3.5 py-1.5 rounded border border-[#D8163F]/30 shadow-lg">
-        <span className="font-ocra text-[10px] text-[#D8163F] font-bold tracking-widest uppercase">LEVEL</span>
-        {/* Sub-Bass Bar */}
+      {/* Hardware Peak LED Meters */}
+      <div className="flex items-center gap-2 mt-1 bg-black/85 backdrop-blur-xl px-2.5 py-1 rounded border border-[#D8163F]/30 shadow-lg">
+        {/* Low */}
         <div className="flex items-center gap-1">
-          <span className="font-ocra text-[8px] text-neutral-400">LOW</span>
-          <div className="w-14 h-2 bg-neutral-900 rounded-none overflow-hidden border border-white/10 flex">
+          <span className="font-ocra text-[7px] text-neutral-500 font-bold">L</span>
+          <div className="w-12 h-1.5 bg-neutral-900 rounded-none overflow-hidden border border-white/10 flex">
             <div
               className="h-full transition-all duration-75"
               style={{
@@ -112,10 +111,10 @@ export const DJBrandingOverlay: React.FC<DJBrandingOverlayProps> = ({
           </div>
         </div>
 
-        {/* Mid Bar */}
+        {/* Mid */}
         <div className="flex items-center gap-1">
-          <span className="font-ocra text-[8px] text-neutral-400">MID</span>
-          <div className="w-14 h-2 bg-neutral-900 rounded-none overflow-hidden border border-white/10 flex">
+          <span className="font-ocra text-[7px] text-neutral-500 font-bold">M</span>
+          <div className="w-12 h-1.5 bg-neutral-900 rounded-none overflow-hidden border border-white/10 flex">
             <div
               className="h-full transition-all duration-75"
               style={{
@@ -127,10 +126,10 @@ export const DJBrandingOverlay: React.FC<DJBrandingOverlayProps> = ({
           </div>
         </div>
 
-        {/* High / Treble Bar */}
+        {/* Hi */}
         <div className="flex items-center gap-1">
-          <span className="font-ocra text-[8px] text-neutral-400">HI</span>
-          <div className="w-14 h-2 bg-neutral-900 rounded-none overflow-hidden border border-white/10 flex">
+          <span className="font-ocra text-[7px] text-neutral-500 font-bold">H</span>
+          <div className="w-12 h-1.5 bg-neutral-900 rounded-none overflow-hidden border border-white/10 flex">
             <div
               className="h-full transition-all duration-75"
               style={{

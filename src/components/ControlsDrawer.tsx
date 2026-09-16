@@ -14,6 +14,7 @@ import {
 import { VisualizerConfig, VisualizerMode, DJBranding, VisualizerPreset } from '../types/visualizer';
 import { COLOR_PALETTES, DEFAULT_PRESETS } from '../presets/defaultPresets';
 import { DEFAULT_FRAGMENT_SHADER } from '../visualizers/ShaderGlslVisualizer';
+import { Tooltip } from './common/Tooltip';
 
 interface ControlsDrawerProps {
   isOpen: boolean;
@@ -115,76 +116,79 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
   return (
     <aside className="fixed top-0 right-0 bottom-0 z-40 w-full sm:w-[380px] bg-neutral-950/98 backdrop-blur-3xl border-l border-white/10 flex flex-col shadow-2xl animate-in slide-in-from-right duration-150 font-ocra text-xs">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10 bg-black">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 bg-black">
         <div className="flex items-center gap-2">
           <Sliders className="w-3.5 h-3.5 text-[#D8163F]" />
           <h2 className="font-bold text-white tracking-wider uppercase text-[11px]">
-            INSPECTOR & PARAMETERS
+            INSPECTOR
           </h2>
         </div>
-        <button
-          onClick={onClose}
-          className="p-1 text-neutral-400 hover:text-white rounded hover:bg-neutral-800 transition-colors"
-        >
-          <X className="w-4 h-4" />
-        </button>
+        <Tooltip text="Close" position="left">
+          <button
+            onClick={onClose}
+            className="p-1 text-neutral-400 hover:text-white rounded hover:bg-neutral-800 transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </Tooltip>
       </div>
 
       {/* Tabs */}
       <div className="flex border-b border-white/10 px-2 bg-neutral-900/60 overflow-x-auto text-[10px]">
         {[
-          { id: 'visual', label: 'Engine & Color', icon: Palette },
-          { id: 'dsp', label: 'Reactivity / FX', icon: SlidersHorizontal },
-          { id: 'branding', label: 'DJ Branding', icon: User },
-          { id: 'presets', label: 'Presets', icon: Sparkles },
-          { id: 'shader', label: 'GLSL', icon: Code },
+          { id: 'visual', label: 'Engine', icon: Palette, tip: 'Engine & Palette' },
+          { id: 'dsp', label: 'DSP', icon: SlidersHorizontal, tip: 'DSP & Audio FX' },
+          { id: 'branding', label: 'Brand', icon: User, tip: 'Branding & Watermark' },
+          { id: 'presets', label: 'Presets', icon: Sparkles, tip: 'Saved Presets' },
+          { id: 'shader', label: 'GLSL', icon: Code, tip: 'Fragment Shader' },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-1 px-2.5 py-2 border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-                isActive
-                  ? 'border-[#D8163F] text-[#D8163F] font-bold'
-                  : 'border-transparent text-neutral-400 hover:text-neutral-200'
-              }`}
-            >
-              <Icon className="w-3 h-3" />
-              <span>{tab.label}</span>
-            </button>
+            <Tooltip key={tab.id} text={tab.tip} position="bottom">
+              <button
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-1 px-2.5 py-2 border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+                  isActive
+                    ? 'border-[#D8163F] text-[#D8163F] font-bold'
+                    : 'border-transparent text-neutral-400 hover:text-neutral-200'
+                }`}
+              >
+                <Icon className="w-3 h-3" />
+                <span>{tab.label}</span>
+              </button>
+            </Tooltip>
           );
         })}
       </div>
 
       {/* Body */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
-        {/* TAB 1: VISUAL & COLORS */}
+        {/* TAB 1: VISUAL */}
         {activeTab === 'visual' && (
           <div className="space-y-4">
             {/* Engine Mode Dropdown */}
             <div className="space-y-1">
               <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
-                Visualizer Engine
+                Engine
               </label>
               <select
                 value={config.mode}
                 onChange={(e) => handleModeChange(e.target.value as VisualizerMode)}
                 className="w-full px-2.5 py-1.5 bg-neutral-900 border border-white/10 rounded text-white font-medium focus:border-[#D8163F] outline-none cursor-pointer"
               >
-                <option value="radial-spectrum">HENRY IX Radial Pulse (2D Waveform)</option>
-                <option value="cyber-tunnel">London Club 3D Tunnel (Wireframe)</option>
-                <option value="particle-nebula">KVNGS Royal Nebula (3D Particles)</option>
-                <option value="synthwave-terrain">UK Bassline Grid (3D Mountain Waves)</option>
-                <option value="glsl-warp">Berghain GLSL Warp (Hardware Fragment)</option>
+                <option value="radial-spectrum">Radial</option>
+                <option value="cyber-tunnel">Tunnel</option>
+                <option value="particle-nebula">Nebula</option>
+                <option value="synthwave-terrain">Grid</option>
+                <option value="glsl-warp">GLSL Warp</option>
               </select>
             </div>
 
             {/* Color Palette Dropdown */}
             <div className="space-y-1">
               <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
-                Color Palette
+                Palette
               </label>
               <select
                 value={config.palette.id}
@@ -193,26 +197,25 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
               >
                 {COLOR_PALETTES.map((pal) => (
                   <option key={pal.id} value={pal.id}>
-                    {pal.name} ({pal.primary})
+                    {pal.name.replace('HENRY IX ', '').replace('KVNGS ', '').replace(' LONDON', '')}
                   </option>
                 ))}
               </select>
 
               {/* Palette Color Previews */}
-              <div className="flex items-center gap-1.5 pt-1.5">
-                <span className="text-[10px] text-neutral-500 mr-1">Palette swatches:</span>
-                <span className="w-4 h-4 rounded border border-white/20" style={{ backgroundColor: config.palette.primary }} title="Primary" />
-                <span className="w-4 h-4 rounded border border-white/20" style={{ backgroundColor: config.palette.secondary }} title="Secondary" />
-                <span className="w-4 h-4 rounded border border-white/20" style={{ backgroundColor: config.palette.accent }} title="Accent" />
-                <span className="w-4 h-4 rounded border border-white/20" style={{ backgroundColor: config.palette.background }} title="Background" />
+              <div className="flex items-center gap-1.5 pt-1">
+                <span className="w-3.5 h-3.5 rounded border border-white/20" style={{ backgroundColor: config.palette.primary }} title="Primary" />
+                <span className="w-3.5 h-3.5 rounded border border-white/20" style={{ backgroundColor: config.palette.secondary }} title="Secondary" />
+                <span className="w-3.5 h-3.5 rounded border border-white/20" style={{ backgroundColor: config.palette.accent }} title="Accent" />
+                <span className="w-3.5 h-3.5 rounded border border-white/20" style={{ backgroundColor: config.palette.background }} title="Background" />
               </div>
             </div>
 
             {/* Resolution / Spectrum Density */}
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] text-neutral-400 font-bold uppercase">
-                <span>Spectrum Bar Density</span>
-                <span className="text-[#D8163F]">{config.barCount} bars</span>
+                <span>Density</span>
+                <span className="text-[#D8163F]">{config.barCount}</span>
               </div>
               <input
                 type="range"
@@ -225,10 +228,10 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
               />
             </div>
 
-            {/* 3D Wireframe Toggle */}
+            {/* Wireframe Toggle */}
             {config.mode !== 'radial-spectrum' && config.mode !== 'glsl-warp' && (
               <div className="flex items-center justify-between p-2.5 bg-neutral-900/70 rounded border border-white/10">
-                <span className="text-[11px] font-medium text-neutral-300 uppercase">3D Wireframe Overlay</span>
+                <span className="text-[11px] font-medium text-neutral-300 uppercase">Wireframe</span>
                 <input
                   type="checkbox"
                   checked={config.wireframe}
@@ -240,13 +243,13 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
           </div>
         )}
 
-        {/* TAB 2: REACTIVITY & DSP */}
+        {/* TAB 2: DSP */}
         {activeTab === 'dsp' && (
           <div className="space-y-3.5">
             {/* Audio Sensitivity */}
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] font-bold text-neutral-400 uppercase">
-                <span>Audio Gain Sensitivity</span>
+                <span>Gain</span>
                 <span className="text-[#D8163F]">{config.sensitivity.toFixed(1)}x</span>
               </div>
               <div className="flex items-center gap-2">
@@ -274,7 +277,7 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
             {/* Spectrum Smoothing */}
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] font-bold text-neutral-400 uppercase">
-                <span>Spectrum Smoothing</span>
+                <span>Smoothing</span>
                 <span className="text-[#D8163F]">{config.smoothing.toFixed(2)}</span>
               </div>
               <div className="flex items-center gap-2">
@@ -302,7 +305,7 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
             {/* Beat Threshold */}
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] font-bold text-neutral-400 uppercase">
-                <span>Beat Drop Threshold</span>
+                <span>Drop Threshold</span>
                 <span className="text-[#D8163F]">{config.beatThreshold.toFixed(2)}</span>
               </div>
               <div className="flex items-center gap-2">
@@ -330,7 +333,7 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
             {/* Speed Factor */}
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] font-bold text-neutral-400 uppercase">
-                <span>Scene Velocity / Speed</span>
+                <span>Speed</span>
                 <span className="text-[#D8163F]">{config.speed.toFixed(1)}x</span>
               </div>
               <div className="flex items-center gap-2">
@@ -358,7 +361,7 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
             {/* Bloom Intensity */}
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] font-bold text-neutral-400 uppercase">
-                <span>Neon Bloom Glow</span>
+                <span>Bloom</span>
                 <span className="text-[#D8163F]">{config.bloomIntensity.toFixed(1)}</span>
               </div>
               <div className="flex items-center gap-2">
@@ -386,7 +389,7 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
             {/* Checkbox FX */}
             <div className="pt-2 space-y-2">
               <div className="flex items-center justify-between p-2 bg-neutral-900/60 rounded border border-white/10">
-                <span className="text-[11px] text-neutral-300 font-medium uppercase">Camera Bass Shake</span>
+                <span className="text-[11px] text-neutral-300 font-medium uppercase">Camera Shake</span>
                 <input
                   type="checkbox"
                   checked={config.cameraShake}
@@ -396,7 +399,7 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
               </div>
 
               <div className="flex items-center justify-between p-2 bg-neutral-900/60 rounded border border-white/10">
-                <span className="text-[11px] text-neutral-300 font-medium uppercase">Strobe Flash on Drop</span>
+                <span className="text-[11px] text-neutral-300 font-medium uppercase">Strobe Drop</span>
                 <input
                   type="checkbox"
                   checked={config.strobeOnDrop}
@@ -408,11 +411,11 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
           </div>
         )}
 
-        {/* TAB 3: DJ BRANDING */}
+        {/* TAB 3: BRAND */}
         {activeTab === 'branding' && (
           <div className="space-y-3.5">
             <div className="flex items-center justify-between p-2.5 bg-neutral-900/70 rounded border border-white/10">
-              <span className="text-[11px] font-bold text-neutral-200 uppercase">Enable Watermark HUD</span>
+              <span className="text-[11px] font-bold text-neutral-200 uppercase">Watermark</span>
               <input
                 type="checkbox"
                 checked={branding.enabled}
@@ -423,7 +426,7 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
 
             {/* DJ Name */}
             <div className="space-y-1">
-              <label className="block text-[10px] font-bold text-neutral-400 uppercase">DJ / Artist Name</label>
+              <label className="block text-[10px] font-bold text-neutral-400 uppercase">Artist</label>
               <input
                 type="text"
                 value={branding.djName}
@@ -434,7 +437,7 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
 
             {/* Mix Title */}
             <div className="space-y-1">
-              <label className="block text-[10px] font-bold text-neutral-400 uppercase">Mix / Episode Title</label>
+              <label className="block text-[10px] font-bold text-neutral-400 uppercase">Title</label>
               <input
                 type="text"
                 value={branding.mixTitle}
@@ -445,44 +448,46 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
 
             {/* Position Dropdown */}
             <div className="space-y-1">
-              <label className="block text-[10px] font-bold text-neutral-400 uppercase">Screen Position</label>
+              <label className="block text-[10px] font-bold text-neutral-400 uppercase">Position</label>
               <select
                 value={branding.position}
                 onChange={(e) => onChangeBranding({ ...branding, position: e.target.value as any })}
                 className="w-full px-2.5 py-1.5 bg-neutral-900 border border-white/10 rounded text-white font-medium focus:border-[#D8163F] outline-none cursor-pointer"
               >
-                <option value="bottom-left">Bottom Left (Classic)</option>
-                <option value="bottom-center">Bottom Center (Symmetrical)</option>
+                <option value="bottom-left">Bottom Left</option>
+                <option value="bottom-center">Bottom Center</option>
                 <option value="top-left">Top Left</option>
-                <option value="center">Center Stage Emblem</option>
+                <option value="center">Center</option>
               </select>
             </div>
 
-            {/* Emblem / Artwork Dropdown */}
+            {/* Emblem Artwork Dropdown */}
             <div className="space-y-1">
-              <label className="block text-[10px] font-bold text-neutral-400 uppercase">Emblem Artwork</label>
+              <label className="block text-[10px] font-bold text-neutral-400 uppercase">Emblem</label>
               <div className="flex items-center gap-2">
                 <select
                   value={branding.logoUrl || '/logo-ix.svg'}
                   onChange={(e) => onChangeBranding({ ...branding, logoUrl: e.target.value })}
                   className="flex-1 px-2.5 py-1.5 bg-neutral-900 border border-white/10 rounded text-white font-medium focus:border-[#D8163F] outline-none cursor-pointer"
                 >
-                  <option value="/logo-ix.svg">Official IX Vector Monogram</option>
-                  <option value="/cover.png">Album Cover Artwork</option>
+                  <option value="/logo-ix.svg">IX Logo</option>
+                  <option value="/cover.png">Cover Art</option>
                 </select>
-                <button
-                  onClick={() => logoInputRef.current?.click()}
-                  className="px-2 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-[10px] cursor-pointer"
-                >
-                  Upload...
-                </button>
+                <Tooltip text="Upload logo" position="top">
+                  <button
+                    onClick={() => logoInputRef.current?.click()}
+                    className="px-2.5 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-[10px] cursor-pointer"
+                  >
+                    Upload
+                  </button>
+                </Tooltip>
                 <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
               </div>
             </div>
 
             {/* Show BPM */}
             <div className="flex items-center justify-between p-2 bg-neutral-900/60 rounded border border-white/10">
-              <span className="text-[11px] text-neutral-300 font-medium uppercase">Live BPM Counter Badge</span>
+              <span className="text-[11px] text-neutral-300 font-medium uppercase">BPM Badge</span>
               <input
                 type="checkbox"
                 checked={branding.showBpm}
@@ -495,58 +500,61 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
 
         {/* TAB 4: PRESETS */}
         {activeTab === 'presets' && (
-          <div className="space-y-3.5">
+          <div className="space-y-3">
             <div className="space-y-1">
-              <label className="block text-[10px] font-bold text-neutral-400 uppercase">Load Predefined Preset</label>
+              <label className="block text-[10px] font-bold text-neutral-400 uppercase">Preset</label>
               <select
                 onChange={(e) => handlePresetSelect(e.target.value)}
                 defaultValue=""
                 className="w-full px-2.5 py-1.5 bg-neutral-900 border border-white/10 rounded text-white font-medium focus:border-[#D8163F] outline-none cursor-pointer"
               >
-                <option value="" disabled>Select Preset...</option>
+                <option value="" disabled>Select...</option>
                 {DEFAULT_PRESETS.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} ({p.genreTag})
+                    {p.name.replace('HENRY IX ', '')}
                   </option>
                 ))}
               </select>
             </div>
 
             {/* Compact preset buttons */}
-            <div className="space-y-1.5 pt-2">
+            <div className="grid grid-cols-1 gap-1 pt-1">
               {DEFAULT_PRESETS.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => onChangeConfig({ ...p.config })}
-                  className={`w-full p-2 rounded text-left border transition-all cursor-pointer flex items-center justify-between ${
+                  className={`w-full px-2.5 py-1.5 rounded text-left border transition-all cursor-pointer flex items-center justify-between ${
                     config.mode === p.config.mode && config.palette.id === p.config.palette.id
                       ? 'bg-[#D8163F]/20 border-[#D8163F] text-white'
                       : 'bg-neutral-900/50 border-white/5 hover:bg-neutral-900 text-neutral-300'
                   }`}
                 >
-                  <span className="font-bold text-[11px] uppercase">{p.name}</span>
-                  <span className="text-[9px] text-neutral-500">{p.genreTag}</span>
+                  <span className="font-bold text-[11px] uppercase truncate">{p.name.replace('HENRY IX ', '')}</span>
                 </button>
               ))}
             </div>
 
             {/* Export / Import */}
             <div className="pt-2 border-t border-white/10 flex items-center gap-2">
-              <button
-                onClick={handleExportPreset}
-                className="flex-1 py-1.5 rounded bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-white/10 text-[10px] font-bold flex items-center justify-center gap-1 cursor-pointer"
-              >
-                <Download className="w-3 h-3 text-[#D8163F]" />
-                Export JSON
-              </button>
+              <Tooltip text="Export JSON" position="top">
+                <button
+                  onClick={handleExportPreset}
+                  className="flex-1 py-1.5 px-3 rounded bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-white/10 text-[10px] font-bold flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <Download className="w-3 h-3 text-[#D8163F]" />
+                  Export
+                </button>
+              </Tooltip>
               <input ref={presetImportRef} type="file" accept=".json" className="hidden" onChange={handleImportPreset} />
-              <button
-                onClick={() => presetImportRef.current?.click()}
-                className="flex-1 py-1.5 rounded bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-white/10 text-[10px] font-bold flex items-center justify-center gap-1 cursor-pointer"
-              >
-                <UploadCloud className="w-3 h-3 text-[#E5A93C]" />
-                Import JSON
-              </button>
+              <Tooltip text="Import JSON" position="top">
+                <button
+                  onClick={() => presetImportRef.current?.click()}
+                  className="flex-1 py-1.5 px-3 rounded bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-white/10 text-[10px] font-bold flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <UploadCloud className="w-3 h-3 text-[#E5A93C]" />
+                  Import
+                </button>
+              </Tooltip>
             </div>
           </div>
         )}
@@ -555,9 +563,9 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
         {activeTab === 'shader' && (
           <div className="space-y-2.5">
             <div className="text-[10px] text-neutral-400">
-              Live Fragment Shader Uniforms:
-              <code className="block mt-1 p-1.5 bg-black border border-white/10 rounded font-mono text-[9px] text-[#D8163F]">
-                u_time, u_bass, u_mid, u_treble, u_beat, u_beat_intensity, u_resolution, u_color_primary
+              <span className="font-bold text-neutral-300">Uniforms:</span>
+              <code className="block mt-1 p-1.5 bg-black border border-white/10 rounded font-mono text-[9px] text-[#D8163F] truncate">
+                u_time, u_bass, u_mid, u_treble, u_beat, u_resolution
               </code>
             </div>
 
@@ -570,10 +578,10 @@ export const ControlsDrawer: React.FC<ControlsDrawerProps> = ({
 
             <button
               onClick={handleApplyCustomShader}
-              className="w-full py-2 rounded bg-[#D8163F] hover:bg-[#b01032] text-white font-bold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
+              className="w-full py-1.5 rounded bg-[#D8163F] hover:bg-[#b01032] text-white font-bold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
             >
               {shaderApplied ? <Check className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
-              {shaderApplied ? 'Applied' : 'Compile & Apply'}
+              {shaderApplied ? 'Applied' : 'Apply'}
             </button>
           </div>
         )}

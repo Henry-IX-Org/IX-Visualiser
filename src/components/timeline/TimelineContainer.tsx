@@ -11,6 +11,7 @@ import { TimelineRuler } from './TimelineRuler';
 import { TimelineTrackRow } from './TimelineTrackRow';
 import { TracklistImportModal } from './TracklistImportModal';
 import { DEFAULT_PRESETS } from '../../presets/defaultPresets';
+import { Tooltip } from '../common/Tooltip';
 
 interface TimelineContainerProps {
   duration: number;
@@ -169,12 +170,14 @@ export const TimelineContainer: React.FC<TimelineContainerProps> = ({
   if (isCollapsed) {
     return (
       <div className="absolute bottom-0 left-0 right-0 z-30 flex justify-center">
-        <button
-          onClick={() => setIsCollapsed(false)}
-          className="px-4 py-1.5 bg-black/90 hover:bg-neutral-900 border-t border-x border-[#D8163F]/40 rounded-t-lg font-ocra text-xs text-[#D8163F] font-bold tracking-widest cursor-pointer shadow-2xl flex items-center gap-2"
-        >
-          ▲ EXPAND TIMELINE DAW
-        </button>
+        <Tooltip text="Open DAW timeline" position="top">
+          <button
+            onClick={() => setIsCollapsed(false)}
+            className="px-3 py-1 bg-black/90 hover:bg-neutral-900 border-t border-x border-[#D8163F]/40 rounded-t-lg font-ocra text-xs text-[#D8163F] font-bold tracking-wider cursor-pointer shadow-2xl flex items-center gap-1.5"
+          >
+            <span>▲ Timeline</span>
+          </button>
+        </Tooltip>
       </div>
     );
   }

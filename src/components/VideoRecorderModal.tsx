@@ -3,6 +3,7 @@ import { X, Video, Download, Disc3, Zap, Radio, Check, AlertCircle } from 'lucid
 import { AudioEngine } from '../audio/AudioEngine';
 import { WebCodecsExporter, RenderProgress } from '../export/WebCodecsExporter';
 import { TimelineClip, AspectRatio, AudioWaveformMap } from '../types/timeline';
+import { Tooltip } from './common/Tooltip';
 
 interface VideoRecorderModalProps {
   isOpen: boolean;
@@ -169,88 +170,90 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-150">
       <div className="relative w-full max-w-lg bg-black border border-[#D8163F]/40 rounded-xl p-6 shadow-2xl">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        <Tooltip text="Close" position="left">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-1.5 rounded text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </Tooltip>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-3 mb-5">
-          <div className="p-2.5 rounded bg-[#D8163F]/20 text-[#D8163F] border border-[#D8163F]/40">
-            <Video className="w-6 h-6" />
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 rounded bg-[#D8163F]/20 text-[#D8163F] border border-[#D8163F]/40">
+            <Video className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-avathe text-xl tracking-wider text-white uppercase redline-glow">
-              EXPORT VISUALISER VIDEO
+            <h3 className="font-avathe text-lg tracking-wider text-white uppercase redline-glow">
+              EXPORT VIDEO
             </h3>
-            <p className="font-ocra text-xs text-neutral-400 mt-0.5">
-              High-definition {aspectRatio} render for YouTube, Instagram & Stage
+            <p className="font-ocra text-[11px] text-neutral-400">
+              {aspectRatio} • 1080p
             </p>
           </div>
         </div>
 
         {/* Export Mode Tabs */}
-        <div className="flex border-b border-white/10 mb-5 font-ocra text-xs">
+        <div className="flex border-b border-white/10 mb-4 font-ocra text-xs">
           <button
             onClick={() => setExportTab('fast-mp4')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 border-b-2 font-bold transition-all cursor-pointer ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 border-b-2 font-bold transition-all cursor-pointer ${
               exportTab === 'fast-mp4'
                 ? 'border-[#D8163F] text-[#D8163F]'
                 : 'border-transparent text-neutral-400 hover:text-white'
             }`}
           >
-            <Zap className="w-4 h-4" />
-            FAST MP4 EXPORT (2X-4X SPEED)
+            <Zap className="w-3.5 h-3.5" />
+            Fast MP4
           </button>
           <button
             onClick={() => setExportTab('live-vj')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 border-b-2 font-bold transition-all cursor-pointer ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 border-b-2 font-bold transition-all cursor-pointer ${
               exportTab === 'live-vj'
                 ? 'border-[#D8163F] text-[#D8163F]'
                 : 'border-transparent text-neutral-400 hover:text-white'
             }`}
           >
-            <Radio className="w-4 h-4" />
-            LIVE VJ CAPTURE
+            <Radio className="w-3.5 h-3.5" />
+            Live Record
           </button>
         </div>
 
         {/* TAB 1: Fast Background MP4 Export */}
         {exportTab === 'fast-mp4' && (
-          <div className="space-y-5 font-ocra text-xs">
+          <div className="space-y-4 font-ocra text-xs">
             {/* Status box */}
-            <div className="p-5 rounded bg-neutral-950 border border-white/10 flex flex-col items-center justify-center gap-3">
+            <div className="p-4 rounded bg-neutral-950 border border-white/10 flex flex-col items-center justify-center gap-3">
               {isExporting && exportProgress ? (
-                <div className="w-full flex flex-col gap-2.5">
+                <div className="w-full flex flex-col gap-2">
                   <div className="flex items-center justify-between font-bold">
-                    <span className="text-[#D8163F] animate-pulse">HARDWARE RENDERING MP4...</span>
-                    <span className="text-white text-base">{exportProgress.percent}%</span>
+                    <span className="text-[#D8163F] animate-pulse">Rendering...</span>
+                    <span className="text-white text-sm">{exportProgress.percent}%</span>
                   </div>
 
                   {/* Progress bar */}
-                  <div className="w-full h-2.5 bg-neutral-900 rounded-full overflow-hidden border border-white/10">
+                  <div className="w-full h-2 bg-neutral-900 rounded-full overflow-hidden border border-white/10">
                     <div
                       className="h-full bg-gradient-to-r from-[#D8163F] via-[#E5A93C] to-[#D8163F] transition-all duration-150"
                       style={{ width: `${exportProgress.percent}%` }}
                     />
                   </div>
 
-                  <div className="flex justify-between text-[11px] text-neutral-400 mt-1">
-                    <span>Frames: {exportProgress.currentFrame} / {exportProgress.totalFrames}</span>
-                    <span>Speed: {exportProgress.fps} FPS</span>
+                  <div className="flex justify-between text-[10px] text-neutral-400 mt-0.5">
+                    <span>Frame: {exportProgress.currentFrame}/{exportProgress.totalFrames}</span>
+                    <span>{exportProgress.fps} FPS</span>
                     <span>ETA: {exportProgress.etaSeconds}s</span>
                   </div>
                 </div>
               ) : exportedMp4Url ? (
-                <div className="flex flex-col items-center gap-2 text-emerald-400 font-bold">
-                  <Check className="w-8 h-8 text-emerald-400" />
-                  <span className="text-sm">RENDER COMPLETE (.MP4 1080P)</span>
+                <div className="flex flex-col items-center gap-1 text-emerald-400 font-bold py-2">
+                  <Check className="w-6 h-6 text-emerald-400" />
+                  <span className="text-xs">Render Complete</span>
                 </div>
               ) : (
-                <div className="text-neutral-400 text-center leading-relaxed text-xs">
-                  Renders the full timeline in the background as fast as your GPU allows without playing audio out loud. Output: High-bitrate H.264 MP4.
+                <div className="text-neutral-400 text-center text-xs py-2">
+                  High-speed background hardware render (H.264 MP4).
                 </div>
               )}
             </div>
@@ -259,25 +262,25 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
             {isExporting ? (
               <button
                 onClick={cancelFastExport}
-                className="w-full py-3 rounded bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider cursor-pointer"
+                className="w-full py-2.5 rounded bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider cursor-pointer"
               >
-                CANCEL EXPORT
+                Cancel
               </button>
             ) : exportedMp4Url ? (
               <a
                 href={exportedMp4Url}
                 download={`${trackTitle || 'henry-ix-mix'}-${aspectRatio.replace(':', 'x')}.mp4`}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider transition-all"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider transition-all"
               >
                 <Download className="w-4 h-4" />
-                DOWNLOAD RENDERED MP4
+                Download MP4
               </a>
             ) : (
               <button
                 onClick={startFastExport}
-                className="w-full py-3 rounded bg-[#D8163F] hover:bg-[#b01032] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#D8163F]/40 transition-all cursor-pointer"
+                className="w-full py-2.5 rounded bg-[#D8163F] hover:bg-[#b01032] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#D8163F]/40 transition-all cursor-pointer"
               >
-                START FAST HARDWARE EXPORT
+                Export MP4
               </button>
             )}
           </div>
@@ -285,26 +288,26 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
 
         {/* TAB 2: Live Real-time VJ Capture */}
         {exportTab === 'live-vj' && (
-          <div className="space-y-5 font-ocra text-xs">
-            <div className="p-5 rounded bg-neutral-950 border border-white/10 flex flex-col items-center justify-center gap-2">
+          <div className="space-y-4 font-ocra text-xs">
+            <div className="p-4 rounded bg-neutral-950 border border-white/10 flex flex-col items-center justify-center gap-2">
               {isRecording ? (
-                <div className="flex flex-col items-center gap-2">
-                  <div className="flex items-center gap-2 text-[#D8163F] font-bold tracking-widest animate-pulse">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#D8163F] animate-ping" />
-                    LIVE REAL-TIME CAPTURE
+                <div className="flex flex-col items-center gap-1.5 py-1">
+                  <div className="flex items-center gap-1.5 text-[#D8163F] font-bold text-xs tracking-wider animate-pulse">
+                    <span className="w-2 h-2 rounded-full bg-[#D8163F] animate-ping" />
+                    Recording
                   </div>
-                  <div className="text-4xl font-bold font-mono text-white tracking-widest mt-1">
+                  <div className="text-3xl font-bold font-mono text-white tracking-widest mt-0.5">
                     {formatSeconds(recordingDuration)}
                   </div>
                 </div>
               ) : recordedBlobUrl ? (
-                <div className="flex flex-col items-center gap-2 text-emerald-400 font-bold">
-                  <Disc3 className="w-8 h-8 text-[#D8163F] animate-spin" />
-                  <span>RECORDING FINISHED ({formatSeconds(recordingDuration)})</span>
+                <div className="flex flex-col items-center gap-1 text-emerald-400 font-bold py-2">
+                  <Disc3 className="w-6 h-6 text-[#D8163F] animate-spin" />
+                  <span>Done ({formatSeconds(recordingDuration)})</span>
                 </div>
               ) : (
-                <div className="text-neutral-400 text-center leading-relaxed text-xs">
-                  Records as your mix plays live in real-time, capturing manual parameter tweaks and VJ scene switches.
+                <div className="text-neutral-400 text-center text-xs py-2">
+                  Real-time live session capture with manual tweaks.
                 </div>
               )}
             </div>
@@ -312,25 +315,25 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
             {isRecording ? (
               <button
                 onClick={stopLiveRecording}
-                className="w-full py-3 rounded bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-red-600/40 transition-all cursor-pointer"
+                className="w-full py-2.5 rounded bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-red-600/40 transition-all cursor-pointer"
               >
-                STOP & SAVE RECORDING
+                Stop
               </button>
             ) : recordedBlobUrl ? (
               <a
                 href={recordedBlobUrl}
                 download={`${trackTitle || 'henry-ix-live'}-capture.webm`}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider transition-all"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider transition-all"
               >
                 <Download className="w-4 h-4" />
-                DOWNLOAD LIVE VIDEO (.WEBM)
+                Download WebM
               </a>
             ) : (
               <button
                 onClick={startLiveRecording}
-                className="w-full py-3 rounded bg-[#D8163F] hover:bg-[#b01032] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#D8163F]/40 transition-all cursor-pointer"
+                className="w-full py-2.5 rounded bg-[#D8163F] hover:bg-[#b01032] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#D8163F]/40 transition-all cursor-pointer"
               >
-                START REAL-TIME RECORDING
+                Record
               </button>
             )}
           </div>
