@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { AudioEngine } from './audio/AudioEngine';
 import { AudioScanner } from './audio/AudioScanner';
-import { VisualizerCanvas } from './components/VisualizerCanvas';
 import { StudioHeader } from './components/StudioHeader';
-import { ControlsDrawer } from './components/ControlsDrawer';
-import { DJBrandingOverlay } from './components/DJBrandingOverlay';
+import { LeftPanel } from './components/LeftPanel';
+import { CenterStage } from './components/CenterStage';
+import { BottomPanel } from './components/BottomPanel';
 import { VideoRecorderModal } from './components/VideoRecorderModal';
-import { TimelineContainer } from './components/timeline/TimelineContainer';
 import { VisualizerConfig, DJBranding } from './types/visualizer';
 import { TimelineTrack, TimelineClip, AspectRatio, AudioWaveformMap } from './types/timeline';
 import { DEFAULT_PRESETS } from './presets/defaultPresets';
@@ -110,8 +109,10 @@ export const App: React.FC = () => {
 
   const [selectedClip, setSelectedClip] = useState<TimelineClip | null>(null);
 
-  // UI state
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  // Layout & Panel State
+  const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true);
+  const [isBottomPanelOpen, setIsBottomPanelOpen] = useState(true);
+  const [isVisualizerSolo, setIsVisualizerSolo] = useState(false);
   const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [trackName, setTrackName] = useState('HENRY IX • 128 BPM TECHNO TEST');
@@ -148,7 +149,7 @@ export const App: React.FC = () => {
     ) || clips.find((c) => c.trackId === 1) || null;
   }, [clips, currentTime]);
 
-  // Synchronize selected clip with ControlsDrawer
+  // Synchronize selected clip with LeftPanel
   const handleConfigChange = (newConfig: VisualizerConfig) => {
     setConfig(newConfig);
     if (selectedClip) {
@@ -193,25 +194,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Handle Track Audio Load & Scan
-  const handleAudioUpload = async (file: File) => {
-    const name = await audioEngine.loadFile(file);
-    setTrackName(name.replace(/\.[^/.]+$/, ''));
-
-    // Scan waveform in background
-    AudioScanner.scanFile(file).then((map) => {
-      setWaveformMap(map);
-      setDuration(map.duration);
-      // Extend initial clip to entire mix duration
-      setClips((prev) => [
-        {
-          ...prev[0],
-          endTime: map.duration,
-        },
-      ]);
-    });
-  };
-
   // Global Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -227,9 +209,15 @@ export const App: React.FC = () => {
       } else if (e.code === 'KeyF') {
         e.preventDefault();
         toggleFullscreen();
-      } else if (e.code === 'KeyS') {
+      } else if (e.code === 'KeyB') {
         e.preventDefault();
-        setIsDrawerOpen((prev) => !prev);
+        setIsBottomPanelOpen((prev) => !prev);
+      } else if (e.code === 'KeyL') {
+        e.preventDefault();
+        setIsLeftPanelOpen((prev) => !prev);
+      } else if (e.code === 'KeyM') {
+        e.preventDefault();
+        setIsVisualizerSolo((prev) => !prev);
       }
     };
 
@@ -245,40 +233,55 @@ export const App: React.FC = () => {
       {/* Subtle Bayer Dither Texture Overlay */}
       <div className="absolute inset-0 pointer-events-none z-10 bayer-dither opacity-50" />
 
-      {/* Header */}
-      <div className={`transition-opacity duration-500 ${!showControls && isFullscreen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      {/* Slim Header: Centered HENRY IX Brand + 4 Right-Corner Toggles */}
+      <div className={`transition-opacity duration-300 ${!showControls && isFullscreen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         <StudioHeader
           audioEngine={audioEngine}
-          onToggleDrawer={() => setIsDrawerOpen((prev) => !prev)}
-          onOpenRecordModal={() => setIsRecordModalOpen(true)}
-          isFullscreen={isFullscreen}
-          onToggleFullscreen={toggleFullscreen}
           trackName={trackName}
           setTrackName={setTrackName}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={toggleFullscreen}
+          isBottomPanelOpen={isBottomPanelOpen}
+          onToggleBottomPanel={() => setIsBottomPanelOpen((prev) => !prev)}
+          isLeftPanelOpen={isLeftPanelOpen}
+          onToggleLeftPanel={() => setIsLeftPanelOpen((prev) => !prev)}
+          isVisualizerSolo={isVisualizerSolo}
+          onToggleVisualizerSolo={() => setIsVisualizerSolo((prev) => !prev)}
+          onOpenRecordModal={() => setIsRecordModalOpen(true)}
         />
       </div>
 
-      {/* Center Visualizer Render Viewport (framed by aspect ratio) */}
-      <main className="relative flex-1 w-full h-full overflow-hidden flex items-center justify-center p-2">
-        <VisualizerCanvas
+      {/* Middle Area: Left Customization Panel + Center Stage */}
+      <div className="flex-1 min-h-0 flex relative overflow-hidden">
+        {/* Left Panel: Notion/Antigravity proportion, ends at top of bottom panel */}
+        {isLeftPanelOpen && !isVisualizerSolo && (
+          <LeftPanel
+            config={config}
+            onChangeConfig={handleConfigChange}
+            branding={branding}
+            onChangeBranding={setBranding}
+            aspectRatio={aspectRatio}
+            onChangeAspectRatio={setAspectRatio}
+          />
+        )}
+
+        {/* Center Stage: Framed Visualiser Canvas + Docked Audio Transport Bar */}
+        <CenterStage
           audioEngine={audioEngine}
           config={config}
           aspectRatio={aspectRatio}
           activeClip={activeBaseClip}
           onCanvasReady={setActiveCanvas}
-        />
-
-        {/* DJ Branding / HUD Watermark */}
-        <DJBrandingOverlay
           branding={branding}
-          audioEngine={audioEngine}
-          accentColor={config.palette.primary}
+          currentTime={currentTime}
+          duration={duration}
+          onSeek={handleTimelineSeek}
         />
-      </main>
+      </div>
 
-      {/* Bottom Timeline DAW Editor (hides in fullscreen VJ mode) */}
-      {!isFullscreen && (
-        <TimelineContainer
+      {/* Bottom Panel: Full Width (~33vh), Takes Priority, Pushes Left Panel Up */}
+      {isBottomPanelOpen && !isVisualizerSolo && (
+        <BottomPanel
           duration={duration}
           currentTime={currentTime}
           onSeek={handleTimelineSeek}
@@ -293,20 +296,13 @@ export const App: React.FC = () => {
           aspectRatio={aspectRatio}
           onChangeAspectRatio={setAspectRatio}
           waveformMap={waveformMap}
+          config={config}
+          onChangeConfig={handleConfigChange}
+          audioEngine={audioEngine}
         />
       )}
 
-      {/* Visualiser Studio Controls Drawer */}
-      <ControlsDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        config={config}
-        onChangeConfig={handleConfigChange}
-        branding={branding}
-        onChangeBranding={setBranding}
-      />
-
-      {/* Video Recorder / Fast Hardware Export Modal */}
+      {/* Video Recorder / Hardware Export Modal */}
       <VideoRecorderModal
         isOpen={isRecordModalOpen}
         onClose={() => setIsRecordModalOpen(false)}
