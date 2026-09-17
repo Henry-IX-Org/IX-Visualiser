@@ -169,36 +169,37 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-150">
-      <div className="relative w-full max-w-lg bg-black border border-[#D8163F]/40 rounded-xl p-6 shadow-2xl">
-        <Tooltip text="Close" position="left">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </Tooltip>
-
+      <div className="relative w-full max-w-lg bg-black border border-[#D8163F]/40 rounded-xl p-5 shadow-2xl">
         {/* Modal Header */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded bg-[#D8163F]/20 text-[#D8163F] border border-[#D8163F]/40">
-            <Video className="w-5 h-5" />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded bg-[#D8163F]/20 text-[#D8163F] border border-[#D8163F]/40 flex items-center justify-center shrink-0">
+              <Video className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-ocra text-sm font-bold tracking-wider text-white uppercase redline-glow">
+                EXPORT VIDEO
+              </h3>
+              <p className="font-ocra text-[11px] text-neutral-400">
+                {aspectRatio} • 1080p
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-avathe text-lg tracking-wider text-white uppercase redline-glow">
-              EXPORT VIDEO
-            </h3>
-            <p className="font-ocra text-[11px] text-neutral-400">
-              {aspectRatio} • 1080p
-            </p>
-          </div>
+          <Tooltip text="Close" position="bottom">
+            <button
+              onClick={onClose}
+              className="w-7 h-7 flex items-center justify-center rounded text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </Tooltip>
         </div>
 
         {/* Export Mode Tabs */}
         <div className="flex border-b border-white/10 mb-4 font-ocra text-xs">
           <button
             onClick={() => setExportTab('fast-mp4')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 border-b-2 font-bold transition-all cursor-pointer ${
+            className={`flex-1 h-8 flex items-center justify-center gap-1.5 border-b-2 font-bold transition-all cursor-pointer ${
               exportTab === 'fast-mp4'
                 ? 'border-[#D8163F] text-[#D8163F]'
                 : 'border-transparent text-neutral-400 hover:text-white'
@@ -209,7 +210,7 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
           </button>
           <button
             onClick={() => setExportTab('live-vj')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 border-b-2 font-bold transition-all cursor-pointer ${
+            className={`flex-1 h-8 flex items-center justify-center gap-1.5 border-b-2 font-bold transition-all cursor-pointer ${
               exportTab === 'live-vj'
                 ? 'border-[#D8163F] text-[#D8163F]'
                 : 'border-transparent text-neutral-400 hover:text-white'
@@ -262,7 +263,7 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
             {isExporting ? (
               <button
                 onClick={cancelFastExport}
-                className="w-full py-2.5 rounded bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider cursor-pointer"
+                className="w-full h-8 rounded bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider cursor-pointer flex items-center justify-center transition-colors"
               >
                 Cancel
               </button>
@@ -270,15 +271,15 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
               <a
                 href={exportedMp4Url}
                 download={`${trackTitle || 'henry-ix-mix'}-${aspectRatio.replace(':', 'x')}.mp4`}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider transition-all"
+                className="w-full h-8 flex items-center justify-center gap-2 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider transition-all"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-3.5 h-3.5" />
                 Download MP4
               </a>
             ) : (
               <button
                 onClick={startFastExport}
-                className="w-full py-2.5 rounded bg-[#D8163F] hover:bg-[#b01032] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#D8163F]/40 transition-all cursor-pointer"
+                className="w-full h-8 rounded bg-[#D8163F] hover:bg-[#b01032] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#D8163F]/40 transition-all cursor-pointer flex items-center justify-center"
               >
                 Export MP4
               </button>
@@ -315,7 +316,7 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
             {isRecording ? (
               <button
                 onClick={stopLiveRecording}
-                className="w-full py-2.5 rounded bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-red-600/40 transition-all cursor-pointer"
+                className="w-full h-8 rounded bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-red-600/40 transition-all cursor-pointer flex items-center justify-center"
               >
                 Stop
               </button>
@@ -323,15 +324,15 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({
               <a
                 href={recordedBlobUrl}
                 download={`${trackTitle || 'henry-ix-live'}-capture.webm`}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider transition-all"
+                className="w-full h-8 flex items-center justify-center gap-2 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider transition-all"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-3.5 h-3.5" />
                 Download WebM
               </a>
             ) : (
               <button
                 onClick={startLiveRecording}
-                className="w-full py-2.5 rounded bg-[#D8163F] hover:bg-[#b01032] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#D8163F]/40 transition-all cursor-pointer"
+                className="w-full h-8 rounded bg-[#D8163F] hover:bg-[#b01032] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#D8163F]/40 transition-all cursor-pointer flex items-center justify-center"
               >
                 Record
               </button>

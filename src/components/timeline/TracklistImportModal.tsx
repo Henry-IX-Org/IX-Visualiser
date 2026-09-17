@@ -71,28 +71,29 @@ export const TracklistImportModal: React.FC<TracklistImportModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-150">
-      <div className="relative w-full max-w-2xl bg-black border border-[#D8163F]/40 rounded-xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
-        <Tooltip text="Close" position="left">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </Tooltip>
-
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded bg-[#D8163F]/20 text-[#D8163F] border border-[#D8163F]/40">
-            <FileText className="w-5 h-5" />
+      <div className="relative w-full max-w-2xl bg-black border border-[#D8163F]/40 rounded-xl p-5 shadow-2xl flex flex-col max-h-[85vh]">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded bg-[#D8163F]/20 text-[#D8163F] border border-[#D8163F]/40 flex items-center justify-center shrink-0">
+              <FileText className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-ocra text-sm font-bold tracking-wider text-white uppercase redline-glow">
+                TRACKLIST IMPORT
+              </h3>
+              <p className="font-ocra text-[11px] text-neutral-400">
+                Auto-slice scenes from timestamps or CUE
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-avathe text-lg tracking-wider text-white uppercase redline-glow">
-              TRACKLIST IMPORT
-            </h3>
-            <p className="font-ocra text-[11px] text-neutral-400">
-              Auto-slice scenes from timestamps or CUE
-            </p>
-          </div>
+          <Tooltip text="Close" position="bottom">
+            <button
+              onClick={onClose}
+              className="w-7 h-7 flex items-center justify-center rounded text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </Tooltip>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0 mb-4">
@@ -147,7 +148,7 @@ export const TracklistImportModal: React.FC<TracklistImportModalProps> = ({
         <div className="flex justify-end gap-2 font-ocra">
           <button
             onClick={onClose}
-            className="px-3.5 py-1.5 rounded bg-neutral-900 hover:bg-neutral-800 text-neutral-300 text-xs font-semibold cursor-pointer"
+            className="h-8 px-4 rounded bg-neutral-900 hover:bg-neutral-800 text-neutral-300 text-xs font-semibold cursor-pointer transition-colors"
           >
             Cancel
           </button>
@@ -155,7 +156,7 @@ export const TracklistImportModal: React.FC<TracklistImportModalProps> = ({
             <button
               onClick={handleApply}
               disabled={parsedTracks.length === 0}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded bg-[#D8163F] hover:bg-[#b01032] text-white text-xs font-bold uppercase tracking-wider cursor-pointer shadow-lg shadow-[#D8163F]/30 disabled:opacity-50"
+              className="h-8 flex items-center gap-1.5 px-4 rounded bg-[#D8163F] hover:bg-[#b01032] text-white text-xs font-bold uppercase tracking-wider cursor-pointer shadow-lg shadow-[#D8163F]/30 disabled:opacity-50 transition-all"
             >
               <Sparkles className="w-3.5 h-3.5" />
               Import ({parsedTracks.length})

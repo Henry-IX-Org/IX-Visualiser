@@ -45,13 +45,13 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
   hasSelectedClip,
 }) => {
   return (
-    <div className="flex items-center justify-between px-2.5 py-1 bg-neutral-950 border-b border-white/10 font-ocra text-xs text-neutral-300 select-none">
+    <div className="flex h-8 items-center justify-between px-2.5 bg-neutral-950 border-b border-white/10 font-ocra text-xs text-neutral-300 select-none">
       {/* Left: Tools */}
       <div className="flex items-center gap-1">
         <Tooltip text="Split (S)" position="top">
           <button
             onClick={onSplitClip}
-            className="p-1.5 rounded bg-neutral-900 hover:bg-neutral-800 text-white border border-white/10 hover:border-[#D8163F] cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center rounded bg-neutral-900 hover:bg-neutral-800 text-white border border-white/10 hover:border-[#D8163F] cursor-pointer transition-colors"
           >
             <Scissors className="w-3.5 h-3.5 text-[#D8163F]" />
           </button>
@@ -61,10 +61,10 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
           <button
             onClick={onDuplicateClip}
             disabled={!hasSelectedClip}
-            className={`p-1.5 rounded border transition-colors ${
+            className={`w-7 h-7 flex items-center justify-center rounded border transition-colors ${
               hasSelectedClip
                 ? 'bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border-white/10 cursor-pointer'
-                : 'bg-neutral-950 text-neutral-600 border-transparent cursor-not-allowed'
+                : 'bg-neutral-950 text-neutral-600 border-white/5 cursor-not-allowed'
             }`}
           >
             <Copy className="w-3.5 h-3.5" />
@@ -75,22 +75,22 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
           <button
             onClick={onDeleteClip}
             disabled={!hasSelectedClip}
-            className={`p-1.5 rounded border transition-colors ${
+            className={`w-7 h-7 flex items-center justify-center rounded border transition-colors ${
               hasSelectedClip
                 ? 'bg-neutral-900 hover:bg-red-950/40 text-red-400 border-red-500/30 cursor-pointer'
-                : 'bg-neutral-950 text-neutral-600 border-transparent cursor-not-allowed'
+                : 'bg-neutral-950 text-neutral-600 border-white/5 cursor-not-allowed'
             }`}
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
         </Tooltip>
 
-        <div className="h-3 w-px bg-white/10 mx-1" />
+        <div className="h-4 w-px bg-white/10 mx-1" />
 
         <Tooltip text="Snap Drops" position="top">
           <button
             onClick={onToggleSnapping}
-            className={`p-1.5 rounded border transition-colors cursor-pointer ${
+            className={`w-7 h-7 flex items-center justify-center rounded border transition-colors cursor-pointer ${
               isSnapping
                 ? 'bg-[#D8163F]/20 text-[#D8163F] border-[#D8163F]/50 shadow-sm'
                 : 'bg-neutral-900 text-neutral-400 border-white/10 hover:text-white'
@@ -103,7 +103,7 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
         <Tooltip text="Tracklist" position="top">
           <button
             onClick={onOpenTracklistModal}
-            className="p-1.5 rounded bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-white/10 hover:border-[#E5A93C]/50 cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center rounded bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-white/10 hover:border-[#E5A93C]/50 cursor-pointer transition-colors"
           >
             <FileText className="w-3.5 h-3.5 text-[#E5A93C]" />
           </button>
@@ -116,7 +116,7 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
           <select
             value={aspectRatio}
             onChange={(e) => onChangeAspectRatio(e.target.value as AspectRatio)}
-            className="bg-neutral-900 text-white text-[11px] font-bold px-2 py-1 rounded border border-white/10 focus:outline-none cursor-pointer"
+            className="h-7 px-2 bg-neutral-900 text-white font-mono text-[11px] font-bold rounded border border-white/10 focus:border-[#D8163F] focus:outline-none cursor-pointer"
           >
             <option value="16:9">16:9</option>
             <option value="9:16">9:16</option>
@@ -124,11 +124,11 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
           </select>
         </Tooltip>
 
-        <div className="flex items-center gap-0.5 text-neutral-400">
+        <div className="flex items-center gap-1 text-neutral-400">
           <Tooltip text="Zoom Out" position="top">
             <button
               onClick={() => onZoomChange(Math.max(2, zoom * 0.75))}
-              className="p-1 hover:text-white rounded hover:bg-neutral-800 cursor-pointer"
+              className="w-6 h-6 flex items-center justify-center rounded hover:bg-neutral-800 hover:text-white cursor-pointer"
             >
               <ZoomOut className="w-3 h-3" />
             </button>
@@ -141,13 +141,13 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
             step={2}
             value={zoom}
             onChange={(e) => onZoomChange(parseFloat(e.target.value))}
-            className="w-14 h-1 bg-neutral-800 appearance-none cursor-pointer accent-[#D8163F]"
+            className="w-16 h-1 bg-neutral-800 rounded-full appearance-none cursor-pointer accent-[#D8163F]"
           />
 
           <Tooltip text="Zoom In" position="top">
             <button
               onClick={() => onZoomChange(Math.min(80, zoom * 1.3))}
-              className="p-1 hover:text-white rounded hover:bg-neutral-800 cursor-pointer"
+              className="w-6 h-6 flex items-center justify-center rounded hover:bg-neutral-800 hover:text-white cursor-pointer"
             >
               <ZoomIn className="w-3 h-3" />
             </button>
@@ -157,7 +157,7 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
         <Tooltip text={isCollapsed ? "Expand" : "Collapse"} position="top">
           <button
             onClick={onToggleCollapse}
-            className="p-1 text-neutral-400 hover:text-white rounded hover:bg-neutral-800 cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center text-neutral-400 hover:text-white rounded hover:bg-neutral-800 border border-white/10 cursor-pointer transition-colors"
           >
             {isCollapsed ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>

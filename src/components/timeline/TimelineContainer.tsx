@@ -218,7 +218,7 @@ export const TimelineContainer: React.FC<TimelineContainerProps> = ({
         />
 
         {/* Tracks */}
-        <div className="flex flex-col" style={{ width: `${Math.max(1200, duration * zoom)}px` }}>
+        <div className="flex flex-col" style={{ width: `${Math.max(1200, duration * zoom) + 160}px` }}>
           {tracks.map((track) => (
             <TimelineTrackRow
               key={track.id}

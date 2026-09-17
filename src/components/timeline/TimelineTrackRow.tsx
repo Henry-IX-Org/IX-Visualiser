@@ -62,14 +62,14 @@ export const TimelineTrackRow: React.FC<TimelineTrackRowProps> = ({
   };
 
   return (
-    <div className="relative flex h-14 border-b border-white/5 bg-neutral-950/60 font-ocra text-xs select-none">
-      {/* Track Header (Sticky Left) */}
-      <div className="sticky left-0 z-20 w-44 bg-neutral-900 border-r border-white/10 px-3 flex items-center justify-between shadow-lg">
+    <div className="relative flex h-11 border-b border-white/5 bg-neutral-950/60 font-ocra text-xs select-none">
+      {/* Track Header (Sticky Left: exactly 160px / w-40) */}
+      <div className="sticky left-0 z-20 w-40 h-full bg-neutral-900 border-r border-white/10 px-3 flex items-center justify-between shadow-md">
         <div className="flex items-center gap-2 truncate">
           {getTrackIcon()}
-          <span className="font-bold text-white text-[11px] truncate uppercase">{track.name}</span>
+          <span className="font-bold text-neutral-200 text-[10px] tracking-wider truncate uppercase">{track.name}</span>
         </div>
-        <span className="text-[9px] text-neutral-500 font-mono">T{track.id}</span>
+        <span className="text-[8px] text-neutral-500 font-mono">T{track.id}</span>
       </div>
 
       {/* Clip Lane */}
@@ -115,21 +115,21 @@ export const TimelineTrackRow: React.FC<TimelineTrackRowProps> = ({
 
               {/* Clip Content Label */}
               <div className="flex items-center gap-1.5 truncate pl-1">
-                <span className="font-avathe text-[11px] text-white tracking-wider truncate uppercase">
+                <span className="font-ocra text-[10px] font-bold text-white tracking-wider truncate uppercase">
                   {clip.titleCard || clip.visualMode}
                 </span>
 
                 {/* EQ Target Badge */}
                 {track.type === 'overlay' && (
-                  <span className="text-[8px] px-1 rounded bg-black/60 text-[#E5A93C] font-bold uppercase">
+                  <span className="text-[7px] px-1 py-0.5 rounded bg-black/70 text-[#E5A93C] font-bold uppercase">
                     {clip.eqTarget}
                   </span>
                 )}
 
                 {/* Transition In Badge */}
                 {clip.transitionIn !== 'cut' && (
-                  <span className="text-[8px] px-1 rounded bg-[#D8163F]/40 text-white uppercase flex items-center">
-                    <ChevronRight className="w-2.5 h-2.5" />
+                  <span className="text-[7px] px-1 py-0.5 rounded bg-[#D8163F]/40 text-white uppercase flex items-center">
+                    <ChevronRight className="w-2 h-2" />
                     {clip.transitionIn}
                   </span>
                 )}
